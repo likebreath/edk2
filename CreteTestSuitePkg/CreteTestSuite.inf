@@ -1,0 +1,62 @@
+## @file
+#  Brief Description of UEFI MyHelloWorld
+#
+#  Detailed Description of UEFI MyWizardDriver
+#
+#  Copyright for UEFI  MyHelloWorld
+#
+#  License for UEFI  MyHelloWorld
+#
+##
+
+[Defines]
+  INF_VERSION                    = 1.25
+  BASE_NAME                      = CreteTestSuite
+  FILE_GUID                      = 79483956-fa53-4266-84b2-9ec934df2197
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = UefiMain
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC Etc...
+#
+
+[Sources]
+  CreteTestSuite.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  BaseLib
+  PrintLib
+  BmpSupportLib
+  UefiApplicationEntryPoint
+  BaseMemoryLib
+  DebugLib
+  MemoryAllocationLib
+  SafeIntLib
+  UefiBootServicesTableLib
+  DebugLib
+  SerialPortLib
+  PcdLib
+  DebugPrintErrorLevelLib
+  UefiApplicationEntryPoint
+  UefiLib
+
+  DxeCapsuleLib
+  DxeServicesTableLib
+  ReportStatusCodeLib
+  HobLib
+
+[Guids]
+
+[Ppis]
+
+[Protocols]
+
+[FeaturePcd]
+
+[Pcd]
