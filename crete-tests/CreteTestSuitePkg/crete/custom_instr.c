@@ -25,30 +25,44 @@ size_t my_strlen(const char * str)
 //--------------------- For crete-run/preload-run
 void crete_send_target_pid(void)
 {
+#if defined (_MSC_VER)
+	__asm {CRETE_INSTR_SEND_TARGET_PID()};
+#else
     __asm__ __volatile__(
             CRETE_INSTR_SEND_TARGET_PID()
     );
+#endif
 }
 
 void crete_void_target_pid(void)
 {
+#if defined (_MSC_VER)
+    __asm {CRETE_INSTR_VOID_TARGET_PID()};
+#else
     __asm__ __volatile__(
             CRETE_INSTR_VOID_TARGET_PID()
     );
+#endif
 }
 
 void crete_send_custom_instr_dump(void)
 {
+#if defined (_MSC_VER)
+    __asm {
+            CRETE_INSTR_DUMP()
+    };
+#else
     __asm__ __volatile__(
-        CRETE_INSTR_DUMP()
+            CRETE_INSTR_DUMP()
     );
+#endif
 }
 
 //------ For program under test
 // Function to be captured for replay "crete_make_concolic()":
 // 1. Capture values of concolic variable and its name by touching/reading buffer
 // 2. Inject a call to helper_crete_make_concolic() so that SVM can inject symbolic values
- void __crete_make_concolic_internal(void *addr, size_t size, const char* name)
+ void __crete_make_concolic_internal(void *addr, size_t _size, const char* name)
 {
     // Touch the content of name and force it is being captured
     {
@@ -57,7 +71,7 @@ void crete_send_custom_instr_dump(void)
         volatile char *_name = (volatile char *) name;
 
         size_t i;
-        for (i = 0; (i < size && i < name_size); ++i) {
+        for (i = 0; (i < _size && i < name_size); ++i) {
             *_addr; *_name;
             ++_name; ++_addr;
         }
@@ -69,18 +83,26 @@ void crete_send_custom_instr_dump(void)
                 *_addr; *_name;
                 ++_name;
             }
-        } else if (i < size) {
-            for(; i < size; ++i)
+        } else if (i < _size) {
+            for(; i < _size; ++i)
             {
                 *_addr; ++_addr;
             }
         }
     }
-
+#if defined (_MSC_VER)
+    __asm {
+	    mov eax, addr;
+	    mov ecx, _size;
+	    mov edx, name;
+        CRETE_INSTR_MAKE_CONCOLIC_INTERNAL()
+    };
+#else
     __asm__ __volatile__(
         CRETE_INSTR_MAKE_CONCOLIC_INTERNAL()
-        : : "a" (addr), "c" (size), "d" (name)
+        : : "a" (addr), "c" (_size), "d" (name)
     );
+#endif
 }
 
  int crete_send_concolic_name(const char volatile *name) {
@@ -88,10 +110,18 @@ void crete_send_custom_instr_dump(void)
     name_size = my_strlen((const char *)name);
     __crete_touch_buffer((void*)name, name_size);
 
+#if defined (_MSC_VER)
+    __asm {
+		mov eax, name;
+	    mov ecx, name_size;
+        CRETE_INSTR_SEND_CONCOLIC_NAME()
+	};
+#else
     __asm__ __volatile__(
             CRETE_INSTR_SEND_CONCOLIC_NAME()
         : : "a" (name), "c" (name_size)
     );
+#endif
 
     // Convention: when the current concolic variable exceeds the limit,
     // qemu will set the name as all 0s.
@@ -105,20 +135,27 @@ void crete_send_custom_instr_dump(void)
 // Send information from guest to VM, guest_addr, size, name and name size of concolic value, so that:
 // 1. Set the correct value of concolic variale from test case
 // 2. Enable taint-analysis on this concolic variable
- int crete_pre_make_concolic(void* addr, size_t size, const char* name)
+ int crete_pre_make_concolic(void* addr, size_t _size, const char* name)
 {
     // CRETE_INSTR_SEND_CONCOLIC_NAME must be sent before CRETE_INSTR_PRE_MAKE_CONCOLIC,
     // to satisfy the hanlder's order in qemu/runtime-dump/custom-instruction.cpp
     if(crete_send_concolic_name(name))
         return 1;
 
-    __crete_touch_buffer(addr, size);
+    __crete_touch_buffer(addr, _size);
 
+#if defined (_MSC_VER)
+    __asm {
+		mov eax, addr;
+	    mov ecx, _size;
+        CRETE_INSTR_PRE_MAKE_CONCOLIC()
+    };
+#else
     __asm__ __volatile__(
             CRETE_INSTR_PRE_MAKE_CONCOLIC()
-        : : "a" (addr), "c" (size)
+        : : "a" (addr), "c" (_size)
     );
-
+#endif
     return 0;
 }
 
@@ -126,11 +163,18 @@ void crete_send_custom_instr_dump(void)
 {
     volatile char ret  = 0;
 
+#if defined (_MSC_VER)
+	volatile char *addr_ret = &ret;
+    __asm {
+		mov eax, addr_ret;
+        CRETE_INSTR_CHECK_TARGET_PID()
+    };
+#else
     __asm__ __volatile__(
             CRETE_INSTR_CHECK_TARGET_PID()
             : : "a" (&ret)
     );
-
+#endif
     return ret;
 }
 
@@ -141,7 +185,7 @@ void crete_make_concolic(void* addr, size_t size, const char* name)
 
     size_t name_len = my_strlen(name);
     size_t copy_size = (name_len < MAX_NAME_SIZE)? name_len:MAX_NAME_SIZE;
-    int i = 0;
+    size_t i = 0;
     for(; i < copy_size; ++i)
       {
         concolic_name[i] = name[i];
@@ -158,11 +202,18 @@ void crete_make_concolic(void* addr, size_t size, const char* name)
 char crete_wait_test_case(void)
 {
     volatile char ret  = 0;
-
+#if defined (_MSC_VER)
+	volatile char *addr_ret = &ret;
+    __asm {
+		mov eax, addr_ret;
+        CRETE_INSTR_WAIT_TEST_CASE()
+    };
+#else
     __asm__ __volatile__(
             CRETE_INSTR_WAIT_TEST_CASE()
             : : "a" (&ret)
     );
+#endif
 
     return ret;
 }
@@ -171,10 +222,13 @@ void crete_ovmf_init(void)
 {
     while(!crete_wait_test_case());
 
+#if defined (_MSC_VER)
+    __asm {CRETE_INSTR_PRIME()};
+#else
     __asm__ __volatile__(
             CRETE_INSTR_PRIME()
     );
-
+#endif
     crete_send_target_pid();
 }
 
