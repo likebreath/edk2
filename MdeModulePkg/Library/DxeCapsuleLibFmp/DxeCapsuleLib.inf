@@ -52,7 +52,6 @@
   PrintLib
   HobLib
   BmpSupportLib
-  DisplayUpdateProgressLib
 
 [Pcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdCapsuleMax                               ## CONSUMES
