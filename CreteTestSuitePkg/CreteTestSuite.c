@@ -7,7 +7,8 @@
 #include <Library/BaseMemoryLib.h>
 
 // #include <Library/AFLLib.h>
-
+#include "crete/custom_instr.c"
+#define crete_buffer_size 100
 
 EFI_STATUS test_TranslateBmpToGopBlt() {
   // Function Signature
@@ -35,11 +36,24 @@ RETURN_STATUS TranslateBmpToGopBlt (
   FileSize=0;
 
   // TODO: Bo, please make BmpBuffer and FileSize symbolic
+  BmpBuffer = AllocateZeroPool(crete_buffer_size);
+  /* FileSize = crete_buffer_size; */
 
   Blt = NULL;
   Width = 0;
   Height = 0;
-  Status = TranslateBmpToGopBlt(BmpBuffer, FileSize, &Blt, &BltSize, &Height, &Width);
+
+
+  {
+    crete_ovmf_init();
+
+    crete_make_concolic((void *)BmpBuffer, crete_buffer_size, "BmpBuffer");
+    crete_make_concolic(&FileSize, sizeof(FileSize), "FileSize");
+    Status = TranslateBmpToGopBlt(BmpBuffer, FileSize, &Blt, &BltSize, &Height, &Width);
+
+    crete_ovmf_finish();
+  }
+
   return Status;
 }
 
