@@ -1,8 +1,14 @@
 #include "custom_opcode.h"
 #include <stddef.h>
 
+#if defined (_MSC_VER)
+#define NOINLINE __declspec(noinline)
+#else
+#define NOINLINE __attribute__((noinline))
+#endif
+
 #define MAX_NAME_SIZE  256
- char concolic_name[2*MAX_NAME_SIZE];
+char concolic_name[2*MAX_NAME_SIZE];
 
 size_t my_strlen(const char * str)
 {
@@ -13,7 +19,7 @@ size_t my_strlen(const char * str)
 }
 
 // for memory that needs to be touched.
- inline void __crete_touch_buffer(volatile void *buffer, size_t size)
+inline void __crete_touch_buffer(volatile void *buffer, size_t size)
 {
     size_t i;
     volatile char *b = (volatile char *) buffer;
@@ -26,7 +32,7 @@ size_t my_strlen(const char * str)
 void crete_send_target_pid(void)
 {
 #if defined (_MSC_VER)
-	__asm {CRETE_INSTR_SEND_TARGET_PID()};
+        __asm {CRETE_INSTR_SEND_TARGET_PID()};
 #else
     __asm__ __volatile__(
             CRETE_INSTR_SEND_TARGET_PID()
@@ -34,7 +40,7 @@ void crete_send_target_pid(void)
 #endif
 }
 
-void crete_void_target_pid(void)
+NOINLINE void crete_void_target_pid(void)
 {
 #if defined (_MSC_VER)
     __asm {CRETE_INSTR_VOID_TARGET_PID()};
@@ -45,7 +51,7 @@ void crete_void_target_pid(void)
 #endif
 }
 
-void crete_send_custom_instr_dump(void)
+NOINLINE void crete_send_custom_instr_dump(void)
 {
 #if defined (_MSC_VER)
     __asm {
@@ -92,9 +98,9 @@ void crete_send_custom_instr_dump(void)
     }
 #if defined (_MSC_VER)
     __asm {
-	    mov eax, addr;
-	    mov ecx, _size;
-	    mov edx, name;
+            mov eax, addr;
+            mov ecx, _size;
+            mov edx, name;
         CRETE_INSTR_MAKE_CONCOLIC_INTERNAL()
     };
 #else
@@ -112,10 +118,10 @@ void crete_send_custom_instr_dump(void)
 
 #if defined (_MSC_VER)
     __asm {
-		mov eax, name;
-	    mov ecx, name_size;
+                mov eax, name;
+            mov ecx, name_size;
         CRETE_INSTR_SEND_CONCOLIC_NAME()
-	};
+        };
 #else
     __asm__ __volatile__(
             CRETE_INSTR_SEND_CONCOLIC_NAME()
@@ -146,8 +152,8 @@ void crete_send_custom_instr_dump(void)
 
 #if defined (_MSC_VER)
     __asm {
-		mov eax, addr;
-	    mov ecx, _size;
+                mov eax, addr;
+            mov ecx, _size;
         CRETE_INSTR_PRE_MAKE_CONCOLIC()
     };
 #else
@@ -164,9 +170,9 @@ void crete_send_custom_instr_dump(void)
     volatile char ret  = 0;
 
 #if defined (_MSC_VER)
-	volatile char *addr_ret = &ret;
+        volatile char *addr_ret = &ret;
     __asm {
-		mov eax, addr_ret;
+                mov eax, addr_ret;
         CRETE_INSTR_CHECK_TARGET_PID()
     };
 #else
@@ -203,9 +209,9 @@ char crete_wait_test_case(void)
 {
     volatile char ret  = 0;
 #if defined (_MSC_VER)
-	volatile char *addr_ret = &ret;
+        volatile char *addr_ret = &ret;
     __asm {
-		mov eax, addr_ret;
+                mov eax, addr_ret;
         CRETE_INSTR_WAIT_TEST_CASE()
     };
 #else
