@@ -18,6 +18,7 @@
 #include <Library/UefiLib.h>
 #include <Library/UefiApplicationEntryPoint.h>
 
+#include "crete/custom_instr.c"
 //
 // String token ID of help message text.
 // Shell supports to find help message in the resource section of an application image if
@@ -27,6 +28,28 @@
 // Shell.
 //
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_STRING_ID mStringHelpTokenId = STRING_TOKEN (STR_HELLO_WORLD_HELP_INFORMATION);
+
+UINT32 foobar(UINT32 x) {
+
+  if (x == 10) {
+
+    Print(L"x==10\n");
+
+    return 10;
+
+  } else if (x == 100) {
+
+    Print(L"x==100\n");
+
+    return 100;
+
+  }
+
+  Print(L"return 0\n");
+
+  return 0;
+
+}
 
 /**
   The user Entry Point for Application. The user code starts with this function
@@ -49,17 +72,13 @@ UefiMain (
   UINT32 Index;
 
   Index = 0;
+  {
+    crete_ovmf_init();
 
-  //
-  // Three PCD type (FeatureFlag, UINT32 and String) are used as the sample.
-  //
-  if (FeaturePcdGet (PcdHelloWorldPrintEnable)) {
-    for (Index = 0; Index < PcdGet32 (PcdHelloWorldPrintTimes); Index ++) {
-      //
-      // Use UefiLib Print API to print string to UEFI console
-      //
-      Print ((CHAR16*)PcdGetPtr (PcdHelloWorldPrintString));
-    }
+    crete_make_concolic(&Index, sizeof(UINT32), "Index");
+    foobar(Index);
+
+    crete_ovmf_finish();
   }
 
   return EFI_SUCCESS;
