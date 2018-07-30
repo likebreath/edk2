@@ -60,6 +60,7 @@
   ReportStatusCodeLib|MdePkg/Library/BaseReportStatusCodeLibNull/BaseReportStatusCodeLibNull.inf
   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
 
+  FileExplorerLib|MdeModulePkg/Library/FileExplorerLib/FileExplorerLib.inf
 
 ###################################################################################################
 #

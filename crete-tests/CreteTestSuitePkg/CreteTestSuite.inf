@@ -39,6 +39,7 @@
   MemoryAllocationLib
   SafeIntLib
   UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
   DebugLib
   SerialPortLib
   PcdLib

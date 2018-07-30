@@ -1,3 +1,11 @@
+#include <Uefi.h>
+#include <Library/DebugLib.h>
+#include <Library/BaseMemoryLib.h>
+#include <Library/MemoryAllocationLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiRuntimeServicesTableLib.h>
+#include <Library/UefiLib.h>
+
 #include <Library/BaseLib.h>
 #include <Library/PrintLib.h>
 #include <Library/BmpSupportLib.h>
@@ -7,7 +15,7 @@
 #include <Library/BaseMemoryLib.h>
 
 // #include <Library/AFLLib.h>
-#include "crete/custom_instr.c"
+#include "crete-replay/custom_instr.c"
 #define crete_buffer_size 100
 
 EFI_STATUS test_TranslateBmpToGopBlt() {
