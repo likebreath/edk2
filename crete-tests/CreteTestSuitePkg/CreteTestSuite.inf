@@ -24,6 +24,7 @@
 
 [Sources]
   CreteTestSuite.c
+  AppSupport.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -57,6 +58,8 @@
 [Ppis]
 
 [Protocols]
+  gEfiShellParametersProtocolGuid        ## CONSUMES
+  gEfiShellProtocolGuid                  ## CONSUMES
 
 [FeaturePcd]
 
