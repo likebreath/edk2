@@ -57,8 +57,9 @@ void crete_ovmf_init(void)
   UINTN FileSize = 0;
   EFI_STATUS Status;
   VOID *buf = (VOID *)tcBuffer;
+  CHAR16 next_tc[] = L"next-tc.bin";
 
-  Status = ReadFileToBuffer((CHAR16 *)"next-tc.bin", &FileSize, &buf);
+  Status = ReadFileToBuffer(next_tc, &FileSize, &buf);
   if (EFI_ERROR(Status)) {
     Print(L"[ERROR] crete_ovmf_init(): read 'next-tc.bin' failed.\n");
     return;
