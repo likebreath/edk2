@@ -60,6 +60,7 @@
 [Protocols]
   gEfiShellParametersProtocolGuid        ## CONSUMES
   gEfiShellProtocolGuid                  ## CONSUMES
+  gEfiCpuArchProtocolGuid
 
 [FeaturePcd]
 

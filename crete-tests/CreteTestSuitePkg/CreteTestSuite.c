@@ -13,10 +13,44 @@
 #include <Library/UefiLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/BaseMemoryLib.h>
+#include <Protocol/Cpu.h>
 
-// #include <Library/AFLLib.h>
 #include "crete-replay/custom_instr.c"
 #define crete_buffer_size 100
+
+VOID
+EFIAPI
+MyNt32ExceptionHandler (
+  IN CONST  EFI_EXCEPTION_TYPE  InterruptType,
+  IN CONST  EFI_SYSTEM_CONTEXT  SystemContext
+  )
+{
+  DEBUG ((DEBUG_INFO, "NT32 CPU Debug - %x\n", InterruptType));
+}
+
+
+
+EFI_STATUS
+EFIAPI
+RegisterExceptionHandler ()
+{
+  UINT8                  *Ptr;
+  EFI_STATUS             Status;
+  EFI_CPU_ARCH_PROTOCOL  *Cpu;
+  EFI_EXCEPTION_TYPE     Index;
+
+  Status = gBS->LocateProtocol (&gEfiCpuArchProtocolGuid, NULL, &Cpu);
+  ASSERT_EFI_ERROR(Status);
+
+  for (Index = 0; Index < 0x20; Index++) {
+    Cpu->RegisterInterruptHandler (Cpu, Index, MyNt32ExceptionHandler);
+  }
+
+  Ptr = NULL;
+  Print (L"Hello world! - %x\n", *(Ptr + sizeof(UINTN)));
+
+  return EFI_SUCCESS;
+}
 
 EFI_STATUS test_TranslateBmpToGopBlt() {
   // Function Signature
@@ -72,7 +106,7 @@ UefiMain (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
-
+  RegisterExceptionHandler();
   test_TranslateBmpToGopBlt();
 
   return EFI_SUCCESS;
