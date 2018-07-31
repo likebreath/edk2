@@ -7,6 +7,8 @@ ReadFileToBuffer (
   OUT UINTN                                *BufferSize,
   OUT VOID                                 **Buffer
   );
+  
+CONST CHAR16* EFIAPI ShellGetEnv (IN CONST CHAR16 *EnvKey);
 
 typedef struct _TestCaseElement
 {
@@ -57,13 +59,20 @@ void crete_ovmf_init(void)
   UINTN FileSize = 0;
   EFI_STATUS Status;
   VOID *buf = (VOID *)tcBuffer;
-  CHAR16 next_tc[] = L"next-tc.bin";
+  // CHAR16 next_tc[] = L"next-tc.bin";
+  
+  CONST CHAR16 *next_tc = ShellGetEnv(L"CRETE_NEXT_TC");
+  if (next_tc == NULL) {
+	Print(L"[ERROR] crete_ovmf_init(): environment variable 'CRETE_NEXT_TC' is not set.\n");
+    return;
+  }
 
-  Status = ReadFileToBuffer(next_tc, &FileSize, &buf);
+  Status = ReadFileToBuffer((CHAR16 *)next_tc, &FileSize, &buf);
   if (EFI_ERROR(Status)) {
     Print(L"[ERROR] crete_ovmf_init(): read 'next-tc.bin' failed.\n");
     return;
   }
+  Print(L"[INFO] crete_ovmf_init(): parsing test case: %s\n", next_tc);
   tcBuffer = (CHAR8 *)buf;
 
   // 2. Parse buffer

@@ -81,6 +81,19 @@ GetShellProtocol (
   return mShellProtocol;
 }
 
+CONST CHAR16*
+EFIAPI ShellGetEnv (
+	IN CONST CHAR16                *EnvKey
+  )
+{
+  EFI_SHELL_PROTOCOL                *ShellProtocol;
+  ShellProtocol = GetShellProtocol();
+  if (ShellProtocol == NULL) {
+    return NULL;
+  }
+  return ShellProtocol->GetEnv(EnvKey);
+}
+
 /**
   Read a file.
 
