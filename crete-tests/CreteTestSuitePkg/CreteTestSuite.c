@@ -39,7 +39,7 @@ RegisterExceptionHandler ()
   EFI_CPU_ARCH_PROTOCOL  *Cpu;
   EFI_EXCEPTION_TYPE     Index;
 
-  Status = gBS->LocateProtocol (&gEfiCpuArchProtocolGuid, NULL, &Cpu);
+  Status = gBS->LocateProtocol (&gEfiCpuArchProtocolGuid, NULL, (VOID **)&Cpu);
   ASSERT_EFI_ERROR(Status);
 
   for (Index = 0; Index < 0x20; Index++) {
