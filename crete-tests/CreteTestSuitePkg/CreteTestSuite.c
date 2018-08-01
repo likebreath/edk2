@@ -15,7 +15,8 @@
 #include <Library/BaseMemoryLib.h>
 #include <Protocol/Cpu.h>
 
-#include "crete-replay/custom_instr.c"
+/* #include "crete-replay/custom_instr.c" */
+#include "crete/custom_instr.c"
 #define crete_buffer_size 100
 
 VOID
@@ -26,9 +27,8 @@ MyNt32ExceptionHandler (
   )
 {
   DEBUG ((DEBUG_INFO, "NT32 CPU Debug - %x\n", InterruptType));
+  crete_report_except(InterruptType);
 }
-
-
 
 EFI_STATUS
 EFIAPI
@@ -42,8 +42,11 @@ RegisterExceptionHandler ()
   Status = gBS->LocateProtocol (&gEfiCpuArchProtocolGuid, NULL, (VOID **)&Cpu);
   ASSERT_EFI_ERROR(Status);
 
-  for (Index = 0; Index < 0x20; Index++) {
-    Cpu->RegisterInterruptHandler (Cpu, Index, MyNt32ExceptionHandler);
+  for (Index = 0; Index < 20; Index++) {
+    Status = Cpu->RegisterInterruptHandler (Cpu, Index, MyNt32ExceptionHandler);
+    if (EFI_ERROR (Status)) {
+      crete_report_except(20);
+    }
   }
 
   Ptr = NULL;
