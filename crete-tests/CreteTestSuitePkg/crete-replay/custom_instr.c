@@ -7,7 +7,7 @@ ReadFileToBuffer (
   OUT UINTN                                *BufferSize,
   OUT VOID                                 **Buffer
   );
-  
+
 CONST CHAR16* EFIAPI ShellGetEnv (IN CONST CHAR16 *EnvKey);
 
 typedef struct _TestCaseElement
@@ -60,7 +60,7 @@ void crete_ovmf_init(void)
   EFI_STATUS Status;
   VOID *buf = (VOID *)tcBuffer;
   // CHAR16 next_tc[] = L"next-tc.bin";
-  
+
   CONST CHAR16 *next_tc = ShellGetEnv(L"CRETE_NEXT_TC");
   if (next_tc == NULL) {
 	Print(L"[ERROR] crete_ovmf_init(): environment variable 'CRETE_NEXT_TC' is not set.\n");
@@ -99,4 +99,9 @@ void crete_make_concolic(void* addr, size_t size, const char* name)
 
 void crete_ovmf_finish(void)
 {
+}
+
+void crete_report_except(size_t except_index)
+{
+  // TODO: XXX report and log exception for replay
 }

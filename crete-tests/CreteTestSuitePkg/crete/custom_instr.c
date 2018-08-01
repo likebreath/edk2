@@ -243,3 +243,18 @@ void crete_ovmf_finish(void)
     crete_void_target_pid();
     crete_send_custom_instr_dump();
 }
+
+void crete_report_except(size_t except_index)
+{
+#if defined (_MSC_VER)
+    __asm {
+      mov eax, except_index;
+      CRETE_INSTR_REPORT_EXCEPT()
+    };
+#else
+    __asm__ __volatile__(
+            CRETE_INSTR_REPORT_EXCEPT()
+            : : "a" (except_index)
+    );
+#endif
+}
